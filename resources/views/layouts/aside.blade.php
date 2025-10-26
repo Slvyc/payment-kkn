@@ -44,13 +44,6 @@
                 </li>
             @endif
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('table') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-                    href="{{ route('table') }}">
-                    <i class="material-symbols-rounded opacity-5">table_view</i>
-                    <span class="nav-link-text ms-1">Tables</span>
-                </a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('billing') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                     href="{{ route('billing') }}">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>

@@ -4,11 +4,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
-    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
     <title>
-        Material Dashboard 3 by Creative Tim
+        Sistem Pembayaran KKN Unaya
     </title>
+    <!-- App favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/Unaya.png') }}">
+    <meta name="theme-color" content="#43A047">
     <!--     Fonts and icons     -->
     <link rel="stylesheet" type="text/css"
         href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
