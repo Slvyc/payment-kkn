@@ -12,7 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'auth.mahasiswa' => \App\Http\Middleware\CheckMahasiswaSession::class
+            'auth.mahasiswa' => \App\Http\Middleware\CheckMahasiswaSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

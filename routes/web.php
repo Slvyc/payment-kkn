@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Auth\LoginAdminController;
 use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
@@ -25,12 +26,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard.admin');
+
+    // Route mahasiswa
+    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.admin');
 });
-
-
-Route::get('/table', function () {
-    return view('tables');
-})->name('table');
 
 Route::get('/billing', function () {
     return view('billing');
@@ -39,3 +38,8 @@ Route::get('/billing', function () {
 Route::get('/profile', function () {
     return view('profile');
 })->name('profile');
+
+
+Route::get('/cek', function () {
+    return view('cek');
+})->name('cek');

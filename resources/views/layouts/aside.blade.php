@@ -12,13 +12,37 @@
     <hr class="horizontal dark mt-0 mb-2">
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
         <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-                    href="{{ route('dashboard') }}">
-                    <i class="material-symbols-rounded opacity-5">dashboard</i>
-                    <span class="nav-link-text ms-1">Dashboard</span>
-                </a>
-            </li>
+
+            {{-- Dashboard --}}
+            @if (Auth()->user())
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard.admin') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        href="{{ route('dashboard.admin') }}">
+                        <i class="material-symbols-rounded opacity-5">dashboard</i>
+                        <span class="nav-link-text ms-1">Dashboard</span>
+                    </a>
+                </li>
+            @else
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        href="{{ route('dashboard') }}">
+                        <i class="material-symbols-rounded opacity-5">dashboard</i>
+                        <span class="nav-link-text ms-1">Dashboard</span>
+                    </a>
+                </li>
+            @endif
+
+
+
+            @if (Auth()->user())
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('mahasiswa.admin') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        href="{{ route('mahasiswa.admin') }}">
+                        <i class="material-symbols-rounded opacity-5">table_view</i>
+                        <span class="nav-link-text ms-1">Mahasiswa</span>
+                    </a>
+                </li>
+            @endif
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('table') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                     href="{{ route('table') }}">

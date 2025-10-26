@@ -13,5 +13,6 @@ class Mahasiswa extends Model
         'nim',
         'nama',
         'email',
+        'status_kkn'
     ];
 }
