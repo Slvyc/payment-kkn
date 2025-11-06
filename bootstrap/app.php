@@ -14,7 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.mahasiswa' => \App\Http\Middleware\CheckMahasiswaSession::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'api/midtrans/notification' // <-- URL Webhook Anda
+        ]);
     })
+    ->withProviders([
+        App\Providers\MidtransServiceProvider::class, //kutambhin
+    ])
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

@@ -44,10 +44,10 @@
                 </li>
             @endif
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('billing') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-                    href="{{ route('billing') }}">
+                <a class="nav-link {{ request()->routeIs('mahasiswa.pembayaran') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                    href="{{ route('mahasiswa.pembayaran') }}">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
-                    <span class="nav-link-text ms-1">Billing</span>
+                    <span class="nav-link-text ms-1">Pembayaran</span>
                 </a>
             </li>
             <li class="nav-item">

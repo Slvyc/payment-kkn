@@ -15,4 +15,9 @@ class Mahasiswa extends Model
         'email',
         'status_kkn'
     ];
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'mahasiswa_id');
+    }
 }
