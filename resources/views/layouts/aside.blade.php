@@ -46,17 +46,24 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('mahasiswa.pembayaran') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                     href="{{ route('mahasiswa.pembayaran') }}">
-                    <i class="material-symbols-rounded opacity-5">receipt_long</i>
+                    <i class="material-symbols-rounded opacity-5">payments</i>
                     <span class="nav-link-text ms-1">Pembayaran</span>
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('mahasiswa.riwayat') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                    href="{{ route('mahasiswa.riwayat') }}">
+                    <i class="material-symbols-rounded opacity-5">receipt_long</i>
+                    <span class="nav-link-text ms-1">Riwayat Transaksi</span>
+                </a>
+            </li>
+            {{-- <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('profile') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                     href="{{ route('profile') }}">
                     <i class="material-symbols-rounded opacity-5">person</i>
                     <span class="nav-link-text ms-1">Profile</span>
                 </a>
-            </li>
+            </li> --}}
         </ul>
     </div>
     <div class="sidenav-footer position-absolute w-100 bottom-0 ">

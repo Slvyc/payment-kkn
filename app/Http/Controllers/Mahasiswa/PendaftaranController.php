@@ -103,7 +103,7 @@ class PendaftaranController extends Controller
             'customer_details' => [
                 // --- PERBAIKAN 2 ---
                 // Pastikan 'nama' dan 'email' tidak null/kosong
-                'first_name' => $mahasiswaData['nama'] ?? 'Mahasiswa',
+                'first_name' => $mahasiswaData['name'],
                 'email' => $mahasiswaData['email'] ?? $mahasiswaData['nim'] . '@example.com',
             ],
         ];
@@ -115,5 +115,20 @@ class PendaftaranController extends Controller
         $payment->save();
 
         return response()->json(['snap_token' => $snapToken]);
+    }
+
+    public function riwayatTransaksi()
+    {
+
+        $mahasiswaId = Session::get('mahasiswa_data');
+
+        // ambil payment sesuai mahasiswa id
+        $payments = Payment::where('mahasiswa_id', $mahasiswaId['id'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('riwayat-transaksi', [
+            'payments' => $payments
+        ]);
     }
 }

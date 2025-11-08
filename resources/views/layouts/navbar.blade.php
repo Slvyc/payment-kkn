@@ -19,6 +19,10 @@
                                 $pageTitle = 'Tables';
                             case 'mahasiswa.admin':
                                 $pageTitle = 'Mahasiswa';
+                            case 'mahasiswa.pembayaran':
+                                $pageTitle = 'Pembayaran';
+                            case 'mahasiswa.riwayat':
+                                $pageTitle = 'Riwayat Transaksi';
                                 break;
                             // Tambahkan case lain di sini untuk route yang Anda definisikan
                             // Contoh: case 'billing': $pageTitle = 'Billing'; break;

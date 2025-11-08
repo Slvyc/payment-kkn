@@ -5,18 +5,6 @@
     <div class="row">
       <div class="col-12">
         <div class="row">
-          <div class="col-12 mb-xl-0 mb-4">
-            <div class="card bg-transparent shadow-xl">
-              <div class="overflow-hidden position-relative border-radius-xl">
-                <span class="mask bg-gradient-dark opacity-10"></span>
-                <div class="card-body position-relative z-index-1 p-3">
-                  <h5 class="text-white text-center mt-4 mb-4">
-                    STATUS PEMBAYARAN :
-                  </h5>
-                </div>
-              </div>
-            </div>
-          </div>
           <div class="col-xl-6">
             <div class="row">
               <div class="col-md-6 col-6">
