@@ -3,9 +3,11 @@
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Auth\LoginAdminController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CetakInvoice;
 use App\Http\Controllers\Mahasiswa\PendaftaranController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransWebhookController;
+use App\Http\Controllers\DashboardMahasiswaController;
 
 // login mahasiswa
 Route::get('/', [LoginController::class, 'index'])->name('login');
@@ -22,14 +24,13 @@ Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle
 
 // Mahasiswa
 Route::middleware(['auth.mahasiswa'])->prefix('mahasiswa')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
+    Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('mahasiswa.dashboard');
     Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa');
     Route::get('/kkn', [PendaftaranController::class, 'index'])->name('mahasiswa.pembayaran');
     Route::post('/kkn/pembayaran', [PendaftaranController::class, 'createTransaction'])->name('mahasiswa.pembayaran.daftar');
     Route::get('/riwayat-transaksi', [PendaftaranController::class, 'riwayatTransaksi'])->name('mahasiswa.riwayat');
+    Route::get('/riwayat/cetak/{id}', [CetakInvoice::class, 'cetakTransaksi']) // Sesuaikan Controller
+        ->name('mahasiswa.cetak');
 });
 
 // Admin

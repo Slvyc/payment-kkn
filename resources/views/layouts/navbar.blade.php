@@ -15,6 +15,8 @@
                             case 'dashboard':
                                 $pageTitle = 'Dashboard';
                                 break;
+                            case 'mahasiswa.dashboard':
+                                $pageTitle = 'Dashboard Mahasiswa';
                             case 'table':
                                 $pageTitle = 'Tables';
                             case 'mahasiswa.admin':

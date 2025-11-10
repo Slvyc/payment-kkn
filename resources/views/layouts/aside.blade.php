@@ -3,7 +3,7 @@
     <div class="sidenav-header">
         <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none"
             aria-hidden="true" id="iconSidenav"></i>
-        <a class="navbar-brand px-4 py-3 m-0" href="{{ route('dashboard') }}" target="_blank">
+        <a class="navbar-brand px-4 py-3 m-0" href="{{ route('mahasiswa.dashboard') }}" target="_blank">
             <img src="{{ asset('assets/img/Unaya.png') }}" class="navbar-brand-img" width="26" height="26"
                 alt="main_logo">
             <span class="ms-1 text-sm text-dark">Payment KKN Unaya</span>
@@ -24,8 +24,8 @@
                 </li>
             @else
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
-                        href="{{ route('dashboard') }}">
+                    <a class="nav-link {{ request()->routeIs('mahasiswa.dashboard') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                        href="{{ route('mahasiswa.dashboard') }}">
                         <i class="material-symbols-rounded opacity-5">dashboard</i>
                         <span class="nav-link-text ms-1">Dashboard</span>
                     </a>

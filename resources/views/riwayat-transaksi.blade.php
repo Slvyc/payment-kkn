@@ -86,36 +86,33 @@
                                                     {{ $payment->created_at->format('d M Y, H:i') }}
                                                 </td>
                                                 <td class="align-middle text-center text-sm">
-                                                    <a href="">
-                                                        <span class="badge badge-sm bg-gradient-success">Print</span>
-                                                    </a>
                                                     @if ($payment->status == 'pending' && $payment->snap_token)
-                                                        <button onclick="bayarLagi('{{ $payment->snap_token }}')">
-                                                            <span class="badge badge-sm bg-gradient-danger">Bayar Sekarang</span>
+                                                        <button class="btn bg-gradient-danger badge"
+                                                            onclick="bayarLagi('{{ $payment->snap_token }}')">
+                                                            Bayar Sekarang
                                                         </button>
                                                     @elseif($payment->status == 'success')
-                                                        <span class="badge badge-sm bg-gradient-success">Lunas</span>
+                                                        <a href="{{ route('mahasiswa.cetak', ['id' => $payment->id]) }}"
+                                                            target="_blank">
+                                                            <span class="badge badge-sm bg-gradient-warning">Cetak</span>
+                                                        </a>
                                                     @else
+                                                        <a href="">
+                                                            <span class="badge badge-sm bg-gradient-warning">Print</span>
+                                                        </a>
                                                         <span class="badge badge-sm bg-gradient-success">-</span>
                                                     @endif
                                                 </td>
-                                                {{-- <td class=" px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    @if($payment->status == 'pending' && $payment->snap_token)
-                                                    <button onclick="bayarLagi('{{ $payment->snap_token }}')"
-                                                        class="text-blue-600 hover:text-blue-900">
-                                                        Bayar Sekarang
-                                                    </button>
-                                                    @elseif($payment->status == 'success')
-                                                    <span class="text-green-600">Lunas</span>
-                                                    @else
-                                                    <span class="text-gray-400">-</span>
-                                                    @endif
-                                                </td> --}}
                                             </tr>
                                         @endforeach
                                     @endif
                                 </tbody>
                             </table>
+                            {{-- Pagination Links --}}
+                            <div
+                                class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+                                {{-- {{ $pagination->links() }} --}}
+                            </div>
                         </div>
                     </div>
                 </div>

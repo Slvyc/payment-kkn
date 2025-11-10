@@ -3,55 +3,7 @@
 @section('content')
   <div class="container-fluid py-2">
     <div class="row">
-      <div class="col-12">
-        <div class="row">
-          <div class="col-xl-6">
-            <div class="row">
-              <div class="col-md-6 col-6">
-              </div>
-            </div>
-          </div>
-          <div class="col-md-12 mb-lg-0 mb-4">
-            <div class="card mt-4">
-              <div class="card-header pb-0 p-3">
-                <div class="row">
-                  <div class="col-6 d-flex align-items-center">
-                    <h6 class="mb-0">Payment Method</h6>
-                  </div>
-                  <div class="col-6 text-end">
-                    <a class="btn bg-gradient-dark mb-0" href="javascript:;"><i
-                        class="material-symbols-rounded text-sm">add</i>&nbsp;&nbsp;Add New Card</a>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body p-3">
-                <div class="row">
-                  <div class="col-md-6 mb-md-0 mb-4">
-                    <div class="card card-body border card-plain border-radius-lg d-flex align-items-center flex-row">
-                      {{-- <img class="w-10 me-3 mb-0" src="../assets/img/logos/mastercard.png" alt="logo"> --}}
-                      <h6 class="mb-0">****&nbsp;&nbsp;&nbsp;****&nbsp;&nbsp;&nbsp;****&nbsp;&nbsp;&nbsp;7852</h6>
-                      <i class="material-symbols-rounded ms-auto text-dark cursor-pointer" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Edit Card">edit</i>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="card card-body border card-plain border-radius-lg d-flex align-items-center flex-row">
-                      {{-- <img class="w-10 me-3 mb-0" src="../assets/img/logos/visa.png" alt="logo"> --}}
-                      <h6 class="mb-0">****&nbsp;&nbsp;&nbsp;****&nbsp;&nbsp;&nbsp;****&nbsp;&nbsp;&nbsp;5248</h6>
-                      <i class="material-symbols-rounded ms-auto text-dark cursor-pointer" data-bs-toggle="tooltip"
-                        data-bs-placement="top" title="Edit Card">edit</i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-12 mt-4">
+      <div class="col-12 mt-2">
         <div class="card">
           {{-- <div class="card-header pb-0 px-3">
             <h6 class="mb-0">Billing Information</h6>
@@ -74,59 +26,91 @@
                     @endforelse
                   </select>
                 </div>
-                <button id="bayar-kkn-button" class="btn btn-success">
-                  Daftar dan Bayar
+
+                <!-- tombol Daftar selalu terlihat, tombol Bayar muncul saat pilihan dipilih -->
+                <button id="daftar-button" class="btn btn-primary">
+                  Daftar
+                </button>
+                <button id="bayar-button" class="btn btn-success d-none">
+                  Bayar
                 </button>
               </div>
             @else
-              <div class="alert alert-success">Anda sudah terdaftar KKN.</div>
+              <div class="text-center text-white alert alert-success">Anda sudah terdaftar KKN.</div>
             @endif
 
             {{-- Script Midtrans (taruh di layout utama) --}}
             <script src="https://app.sandbox.midtrans.com/snap/snap.js"
-              data-client-key="{{ config('midtrans.cliexnt_key') }}"></script>
+              data-client-key="{{ config('midtrans.client_key') }}"></script>
 
             {{-- Script Logika Halaman (taruh di bawah) --}}
             <script type="text/javascript">
-              // Memproses Pembayaran Saat Tombol Diklik ---
-              document.getElementById('bayar-kkn-button').onclick = function () {
-                const jenisKknId = document.getElementById('jenis-kkn').value;
-                const button = this;
-                button.innerHTML = "Memvalidasi...";
-                button.disabled = true;
+              (function () {
+                const jenisSelect = document.getElementById('jenis-kkn');
+                const daftarBtn = document.getElementById('daftar-button');
+                const bayarBtn = document.getElementById('bayar-button');
 
-                fetch("{{ route('mahasiswa.pembayaran.daftar') }}", { // Panggil API KKN Payment
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                  },
-                  body: JSON.stringify({ jenis_kkn_id: jenisKknId })
-                })
-                  .then(response => {
-                    if (!response.ok) return response.json().then(err => { throw new Error(err.message) });
-                    return response.json();
+                // helper: jalankan proses pembayaran (dipakai oleh tombol Bayar / Daftar ketika sudah berubah)
+                function processPayment(jenisKknId, btn) {
+                  if (!jenisKknId) return alert('Pilih jenis KKN terlebih dahulu.');
+                  const originalText = btn.innerHTML;
+                  btn.innerHTML = 'Memproses...';
+                  btn.disabled = true;
+
+                  fetch("{{ route('mahasiswa.pembayaran.daftar') }}", {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ jenis_kkn_id: jenisKknId })
                   })
-                  .then(data => {
-                    if (data.snap_token) {
-                      // Munculkan Pop-up Midtrans
-                      window.snap.pay(data.snap_token, {
-                        onSuccess: function (result) { window.location.reload(); },
-                        onPending: function (result) { window.location.reload(); },
-                        onError: function (result) { window.location.reload(); },
-                        onClose: function () {
-                          button.innerHTML = "Daftar dan Bayar";
-                          button.disabled = false;
-                        }
-                      });
-                    }
-                  })
-                  .catch(error => {
-                    alert('Error: ' + error.message); // Tampilkan error (cth: SKS kurang)
-                    button.innerHTML = "Daftar dan Bayar";
-                    button.disabled = false;
-                  });
-              };
+                    .then(response => response.json())
+                    .then(data => {
+                      if (data.snap_token) {
+                        window.snap.pay(data.snap_token, {
+                          onSuccess: function () { window.location.reload(); },
+                          onPending: function () { window.location.reload(); },
+                          onError: function () { window.location.reload(); },
+                          onClose: function () {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                          }
+                        });
+                      } else {
+                        throw new Error(data.message || 'Gagal memproses pembayaran');
+                      }
+                    })
+                    .catch(err => {
+                      alert('Error: ' + (err.message || err));
+                      btn.innerHTML = originalText;
+                      btn.disabled = false;
+                    });
+                }
+
+                // klik tombol utama: jika teks "Bayar" -> proses pembayaran, kalau "Daftar" -> tampilkan bayar
+                daftarBtn.addEventListener('click', function () {
+                  const jenisKknId = jenisSelect.value;
+                  if (!jenisKknId) {
+                    alert('Pilih jenis KKN terlebih dahulu.');
+                    return;
+                  }
+
+                  if (daftarBtn.textContent.trim().toLowerCase() === 'bayar') {
+                    processPayment(jenisKknId, daftarBtn);
+                    return;
+                  }
+
+                  // fallback: tampilkan tombol bayar dan scroll ke situ
+                  bayarBtn.classList.remove('d-none');
+                  bayarBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+
+                // jika user klik tombol bayar sekunder, panggil processPayment juga
+                bayarBtn.addEventListener('click', function () {
+                  processPayment(jenisSelect.value, bayarBtn);
+                });
+              })();
             </script>
           </div>
         </div>

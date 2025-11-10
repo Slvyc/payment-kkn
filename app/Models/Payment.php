@@ -12,6 +12,7 @@ class Payment extends Model
         'mahasiswa_id',
         'order_id',
         'jenis_kkn_id',
+        'jenis_kkn',
         'amount',
         'status',
         'snap_token'
