@@ -9,7 +9,35 @@
             <h6 class="mb-0">Billing Information</h6>
           </div> --}}
           <div class="card-body pt-4 p-3">
-            @if ($mahasiswa->status_kkn === 'Belum Daftar')
+            @if ($pendingPayment)
+              <div class="row">
+                <div class="col-12">
+                  <div class="card text-center p-4">
+                    <div class="card-body">
+                      <h5 class="font-weight-bolder">Anda Memiliki Transaksi Tertunda</h5>
+                      <p class="text-secondary">
+                        Selesaikan pembayaran untuk <strong>{{ $pendingPayment->order_id }} </strong>
+                      </p>
+                      {{-- Tombol untuk bayar atau batalkan --}}
+                      <button onclick="snap.pay('{{ $pendingPayment->snap_token }}')" class="btn btn-success">
+                        Bayar Sekarang
+                      </button>
+                      <form action="{{ route('mahasiswa.pembayaran.cancel', ['id' => $pendingPayment->id]) }}" method="POST"
+                        style="display: inline-block;"
+                        onsubmit="return confirm('Anda yakin ingin membatalkan transaksi {{ $pendingPayment->order_id }}?');">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">
+                          Batalkan Pembayaran
+                        </button>
+                      </form>
+                      <a href="{{ route('mahasiswa.riwayat') }}" class="btn btn-outline-dark">
+                        Lihat Riwayat
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            @elseif ($mahasiswa->status_kkn === 'Belum Daftar')
               <div class="card p-3">
                 <h5>Pendaftaran KKN</h5>
                 <div class="mb-3">

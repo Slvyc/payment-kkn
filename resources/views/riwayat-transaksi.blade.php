@@ -39,6 +39,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @if(session('success'))
+                                        <div class="alert alert-success">
+                                            {{ session('success') }}
+                                        </div>
+                                    @endif
+
+                                    @if($errors->any())
+                                        <div class="alert alert-danger">
+                                            {{ $errors->first() }}
+                                        </div>
+                                    @endif
                                     @if($payments->isEmpty())
                                         <tr>
                                             <td colspan="6" class="text-center py-4">
@@ -77,8 +88,10 @@
                                                             <span class="badge badge-sm bg-gradient-success">Berhasil</span>
                                                         @elseif($payment->status == 'pending')
                                                             <span class="badge badge-sm bg-gradient-warning">Pending</span>
-                                                        @else
+                                                        @elseif($payment->status == 'failed')
                                                             <span class="badge badge-sm bg-gradient-danger">Gagal</span>
+                                                        @else
+                                                            <span class="badge badge-sm bg-gradient-secondary">-</span>
                                                         @endif
                                                     </p>
                                                 </td>
@@ -91,6 +104,8 @@
                                                             onclick="bayarLagi('{{ $payment->snap_token }}')">
                                                             Bayar Sekarang
                                                         </button>
+                                                    @elseif($payment->status == 'failed')
+                                                        <span class="badge badge-sm bg-gradient-warning">-</span>
                                                     @elseif($payment->status == 'success')
                                                         <a href="{{ route('mahasiswa.cetak', ['id' => $payment->id]) }}"
                                                             target="_blank">

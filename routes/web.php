@@ -24,11 +24,21 @@ Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle
 
 // Mahasiswa
 Route::middleware(['auth.mahasiswa'])->prefix('mahasiswa')->group(function () {
+
+    // Dashboard Mahasiswa
     Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('mahasiswa.dashboard');
-    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa');
+    // Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa');
+
+    // Halaman Pembayaran dan Transaksi
     Route::get('/kkn', [PendaftaranController::class, 'index'])->name('mahasiswa.pembayaran');
     Route::post('/kkn/pembayaran', [PendaftaranController::class, 'createTransaction'])->name('mahasiswa.pembayaran.daftar');
+
+    // Cancel Transaksi
+    Route::post('/kkn/cancel/{id}', [PendaftaranController::class, 'cancelTransaction'])->name('mahasiswa.pembayaran.cancel');
+
+    // Riwayat Transaksi
     Route::get('/riwayat-transaksi', [PendaftaranController::class, 'riwayatTransaksi'])->name('mahasiswa.riwayat');
+    // Cetak Invoice
     Route::get('/riwayat/cetak/{id}', [CetakInvoice::class, 'cetakTransaksi']) // Sesuaikan Controller
         ->name('mahasiswa.cetak');
 });

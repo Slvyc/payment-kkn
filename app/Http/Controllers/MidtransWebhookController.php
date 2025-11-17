@@ -17,14 +17,29 @@ class MidtransWebhookController extends Controller
         Config::$isProduction = config('midtrans.is_production');
 
         Log::info('=== WEBHOOK MULAI ===');
-        Log::info('Raw Request:', $request->all());
 
-        $order_id = $request->order_id;
-        $transaction_status = $request->transaction_status;
-        $fraud_status = $request->fraud_status ?? 'accept';
-        $status_code = $request->status_code;
-        $gross_amount = $request->gross_amount;
-        $signature_key = $request->signature_key;
+        // --- PERBAIKAN: BACA REQUEST SEBAGAI JSON ---
+        // Ambil payload mentah
+        $payload = $request->getContent();
+        // Decode JSON menjadi array
+        $data = json_decode($payload, true);
+
+        // Cek jika JSON valid
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            Log::error('❌ Payload JSON tidak valid.', ['payload' => $payload]);
+            return response()->json(['message' => 'Invalid JSON payload.'], 400);
+        }
+
+        Log::info('Raw Request (sudah di-decode):', $data);
+
+        // Ambil data dari array $data, bukan $request
+        $order_id = $data['order_id'] ?? null;
+        $transaction_status = $data['transaction_status'] ?? null;
+        $fraud_status = $data['fraud_status'] ?? 'accept';
+        $status_code = $data['status_code'] ?? null;
+        $gross_amount = $data['gross_amount'] ?? null;
+        $signature_key = $data['signature_key'] ?? null;
+        // --- AKHIR PERBAIKAN ---
 
         Log::info('Data Parsed:', [
             'order_id' => $order_id,
@@ -46,7 +61,7 @@ class MidtransWebhookController extends Controller
 
         Log::info('✅ Signature valid');
 
-        // Cari payment
+        // --- Sisa kode Anda (sudah benar) ---
         $payment = Payment::where('order_id', $order_id)->first();
 
         if (!$payment) {
@@ -60,33 +75,26 @@ class MidtransWebhookController extends Controller
             'new_status' => $transaction_status
         ]);
 
-        // Cek status final
         if (in_array($payment->status, ['success', 'failed'])) {
             Log::info('⚠️ Status sudah final, skip update');
             return response()->json(['message' => 'Already processed'], 200);
         }
 
-        // Update status berdasarkan transaction_status
         if ($transaction_status == 'capture' || $transaction_status == 'settlement') {
             if ($fraud_status == 'accept') {
                 $payment->status = 'success';
-
-                // Update mahasiswa
-                $mahasiswa = $payment->mahasiswa;
-                if ($mahasiswa) {
-                    $mahasiswa->status_kkn = 'Sudah Daftar';
-                    $mahasiswa->save();
-                    Log::info('✅ Mahasiswa updated:', [
-                        'id' => $mahasiswa->id,
-                        'status_kkn' => $mahasiswa->status_kkn
-                    ]);
+                if ($payment->mahasiswa) {
+                    $payment->mahasiswa->status_kkn = 'Sudah Daftar';
+                    $payment->mahasiswa->save();
+                    Log::info('✅ Mahasiswa updated:', ['id' => $payment->mahasiswa->id]);
                 }
-
                 Log::info('✅ Payment SUCCESS: ' . $order_id);
             }
-        } elseif (in_array($transaction_status, ['cancel', 'deny', 'expire'])) {
+        }
+        // Logika 'expire' Anda akan berjalan sekarang
+        elseif (in_array($transaction_status, ['cancel', 'deny', 'expire'])) {
             $payment->status = 'failed';
-            Log::info('❌ Payment FAILED: ' . $order_id);
+            Log::info('❌ Payment FAILED/EXPIRED: ' . $order_id);
         } elseif ($transaction_status == 'pending') {
             $payment->status = 'pending';
             Log::info('⏳ Payment PENDING: ' . $order_id);

@@ -9,7 +9,7 @@ class DashboardMahasiswaController extends Controller
 {
     public function index()
     {
-        $siakadApiUrl = 'http://127.0.0.1:8000/api/jadwal-kkn';
+        $siakadApiUrl = 'https://mini-siakad.cloud/api/jadwal-kkn';
         // $secretKeySiakad = env('SYSTEM_API_KEY');
         $secretKeySiakad = 'starkey-aespo';
         $jadwal_kkn = [];

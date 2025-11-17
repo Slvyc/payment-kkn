@@ -23,7 +23,7 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        $siakadApiUrl = 'http://127.0.0.1:8000/api/auth/login';
+        $siakadApiUrl = 'https://mini-siakad.cloud/api/auth/login';
 
         // consume login API or check credentials here
         $response = Http::post($siakadApiUrl, [
@@ -56,10 +56,10 @@ class LoginController extends Controller
         Session::put('siakad_token', $data['token']);
         Session::regenerate();
 
-        return redirect()->route('dashboard');
+        return redirect()->route('mahasiswa.dashboard');
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
         // Hapus data user dari session
         session()->flush();
