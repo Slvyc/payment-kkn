@@ -124,37 +124,6 @@ class PendaftaranController extends Controller
         return response()->json(['snap_token' => $snapToken]);
     }
 
-    // public function cancelTransaction($id)
-    // {
-    //     // Cari payment berdasarkan ID dan pastikan milik mahasiswa yang login
-    //     $mahasiswaId = Session::get('mahasiswa_data')['id'];
-    //     $payment = Payment::where('id', $id)
-    //         ->where('mahasiswa_id', $mahasiswaId)
-    //         ->where('status', 'pending')
-    //         ->first();
-
-    //     if (!$payment) {
-    //         return redirect()->back()->withErrors('Transaksi tidak ditemukan atau tidak dapat dibatalkan.');
-    //     }
-
-    //     // Batalkan transaksi di Midtrans
-    //     try {
-    //         $response = Transaction::cancel($payment->order_id);
-    //         Log::info('Midtrans cancel response', ['response' => $response]);
-    //     } catch (\Exception $e) {
-    //         Log::error('Midtrans cancel error', ['message' => $e->getMessage()]);
-    //         return redirect()->back()->withErrors('Gagal membatalkan transaksi: ' . $e->getMessage());
-    //     }
-
-    //     // Update status payment di database
-    //     $payment->status = 'failed';
-    //     $payment->save();
-
-    //     // return redirect()->back()->with('success', 'Transaksi berhasil dibatalkan.');
-    //     return redirect()->route('mahasiswa.riwayat')
-    //         ->with('success', 'Transaksi berhasil dibatalkan.');
-    // }
-
     public function cancelTransaction($id)
     {
         $mahasiswaId = Session::get('mahasiswa_data')['id'];
