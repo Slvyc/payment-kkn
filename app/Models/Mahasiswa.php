@@ -13,11 +13,25 @@ class Mahasiswa extends Model
         'nim',
         'nama',
         'email',
-        'status_kkn'
+        'status_kkn',
+        //biodata
+        'no_hp',
+        'no_hp_darurat',
+        'jenis_kelamin',
+        'ukuran_jacket_rompi',
+        'punya_kendaraan',
+        'tipe_kendaraan',
+        'punya_lisensi',
+        'keahlian'
     ];
 
     public function payment()
     {
         return $this->hasOne(Payment::class, 'mahasiswa_id');
+    }
+
+    public function pendaftaran()
+    {
+        return $this->hasOne(PendaftaranKkn::class, 'mahasiswa_id');
     }
 }

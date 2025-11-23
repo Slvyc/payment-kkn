@@ -16,10 +16,26 @@ class PendaftaranController extends Controller
 {
     public function index()
     {
+
         // 1. Ambil HANYA ID mahasiswa dari session
         $mahasiswaId = Session::get('mahasiswa_data')['id'];
         // 2. Cari mahasiswa itu di tabel lokal menggunakan ID-nya
         $mahasiswa = Mahasiswa::find($mahasiswaId);
+
+        // cek apa udah isi biodata apa ga? kalo ga direct ke halaman biodata   
+        if (
+            !$mahasiswa->no_hp ||
+            !$mahasiswa->no_hp_darurat ||
+            !$mahasiswa->jenis_kelamin ||
+            !$mahasiswa->ukuran_jacket_rompi ||
+            !$mahasiswa->punya_kendaraan ||
+            !$mahasiswa->tipe_kendaraan ||
+            !$mahasiswa->punya_lisensi ||
+            !$mahasiswa->keahlian
+        ) {
+            return redirect()->route('mahasiswa.biodata.index')
+                ->with('warning', 'Lengkapi biodata terlebih dahulu sebelum memilih KKN.');
+        }
 
         // Jika bukan mahasiswa direct 
         if (!$mahasiswaId) {
@@ -33,7 +49,7 @@ class PendaftaranController extends Controller
         // panggil Api endpoinst jenis kkn 
         $siakadApiUrl = 'https://mini-siakad.cloud/api/kkn/jenis';
         // $secretKeySiakad = env('SYSTEM_API_KEY');
-        $secretKeySiakad = 'starkey-aespo';
+        $secretKeySiakad = env('SYSTEM_API_KEY');
         $jenisKknList = [];
 
         try {
@@ -77,13 +93,13 @@ class PendaftaranController extends Controller
             return response()->json($validasiResponse->json(), $validasiResponse->status());
         }
 
-        // 4. Handle jika SUKSES
+        // 4. Handle jika SUKSES 
         $dataFromSiakad = $validasiResponse->json()['data'];
         $biayaKkn = $dataFromSiakad['biaya'];
 
         // 5. Buat Tagihan Lokal (DB KKN Payment)
         $mahasiswaData = Session::get('mahasiswa_data');
-        $orderId = 'KKN-' . $mahasiswaData['id'] . '-' . time();
+        $orderId = 'KKN-' . $jenisKknIdDipilih . $mahasiswaData['id'] . '-' . time();
 
         $payment = Payment::create([
             'order_id' => $orderId,
@@ -121,57 +137,53 @@ class PendaftaranController extends Controller
         $payment->snap_token = $snapToken;
         $payment->save();
 
-        return response()->json(['snap_token' => $snapToken]);
+        return response()->json([
+            'snap_token' => $snapToken
+        ]);
     }
 
     public function cancelTransaction($id)
     {
         $mahasiswaId = Session::get('mahasiswa_data')['id'];
+        $mahasiswa = Mahasiswa::find($mahasiswaId);
 
-        // 1. Cari & Validasi
+        // Jika bukan mahasiswa direct 
+        if (!$mahasiswaId) {
+            return redirect()->route('login')->withErrors('Sesi habis.');
+        }
+
+        Log::info("Memulai proses pembatalan transaksi lokal", ['payment_id' => $id, 'mahasiswa_id' => $mahasiswaId]);
+
+        // 1. Cari & Validasi Lokal
         $payment = Payment::find($id);
 
         if (!$payment) {
+            Log::warning("Transaksi tidak ditemukan", ['payment_id' => $id]);
             return back()->withErrors('Transaksi tidak ditemukan.');
         }
+
         if ($payment->mahasiswa_id != $mahasiswaId) {
+            Log::warning("Percobaan pembatalan tidak sah", [
+                'user_id' => $mahasiswaId,
+                'payment_owner' => $payment->mahasiswa_id
+            ]);
             return back()->withErrors('Anda tidak berhak membatalkan transaksi ini.');
         }
+
         if ($payment->status != 'pending') {
-            return back()->withErrors('Transaksi ini tidak bisa dibatalkan (status: ' . $payment->status . ').');
+            return back()->withErrors('Transaksi ini tidak bisa dibatalkan karena statusnya: ' . $payment->status);
         }
 
-        try {
-            Transaction::cancel($payment->order_id);
+        // 2. Batal Lokal Saja
+        $payment->status = 'failed';
+        $payment->save();
 
-            // 3. Update DB Lokal
-            $payment->status = 'failed';
-            $payment->save();
+        Log::info("Transaksi dibatalkan secara lokal", [
+            'order_id' => $payment->order_id
+        ]);
 
-            return redirect()->route('mahasiswa.riwayat')->with('success', 'Transaksi dibatalkan.');
-        } catch (\Exception $e) {
-            // --- INI BAGIAN PENTING ---
-            // Kita coba cek status manual jika cancel gagal
-            // Siapa tahu sebenarnya sudah expired/cancel di sana
-            try {
-                $status = Transaction::status($payment->order_id);
-                $newStatus = $status->transaction_status;
-
-                if (in_array($newStatus, ['cancel', 'deny', 'expire', 'failure'])) {
-                    $payment->status = 'failed';
-                    $payment->save();
-                    return redirect()->route('mahasiswa.riwayat')->with('success', 'Status diperbarui: Transaksi sudah kadaluwarsa/gagal.');
-                }
-            } catch (\Exception $e2) {
-                // Abaikan
-            }
-
-            // Tampilkan pesan error ASLI dari Midtrans agar kita tahu kenapa gagal
-            // Kemungkinan: "Transaction not found", "Access denied", dll.
-            return back()->withErrors('Gagal membatalkan ke Midtrans: ' . $e->getMessage());
-        }
+        return redirect()->route('mahasiswa.riwayat')->with('success', 'Transaksi dibatalkan.');
     }
-
 
     public function riwayatTransaksi()
     {

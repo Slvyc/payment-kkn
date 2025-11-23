@@ -17,6 +17,8 @@
                                 break;
                             case 'mahasiswa.dashboard':
                                 $pageTitle = 'Dashboard Mahasiswa';
+                            case 'mahasiswa.biodata.index':
+                                $pageTitle = 'Biodata';
                             case 'table':
                                 $pageTitle = 'Tables';
                             case 'mahasiswa.admin':

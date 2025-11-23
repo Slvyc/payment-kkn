@@ -8,6 +8,7 @@ use App\Http\Controllers\Mahasiswa\PendaftaranController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\DashboardMahasiswaController;
+use App\Http\Controllers\Mahasiswa\BiodataController;
 
 // login mahasiswa
 Route::get('/', [LoginController::class, 'index'])->name('login');
@@ -29,7 +30,11 @@ Route::middleware(['auth.mahasiswa'])->prefix('mahasiswa')->group(function () {
     Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('mahasiswa.dashboard');
     // Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa');
 
-    // Halaman Pembayaran dan Transaksi
+    //Halaman Pendaftaran
+    Route::get('kkn/pendaftaran', [BiodataController::class, 'index'])->name('mahasiswa.biodata.index');
+    Route::post('kkn/pendaftaran', [BiodataController::class, 'biodata'])->name('mahasiswa.biodata.update');
+
+    // Halaman, Pembayaran dan Transaksi
     Route::get('/kkn', [PendaftaranController::class, 'index'])->name('mahasiswa.pembayaran');
     Route::post('/kkn/pembayaran', [PendaftaranController::class, 'createTransaction'])->name('mahasiswa.pembayaran.daftar');
 

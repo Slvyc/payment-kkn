@@ -4,19 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Payment extends Model
+class PendaftaranKkn extends Model
 {
-    protected $table = 'payment';
+    protected $table = 'pendaftaran_kkn';
 
     protected $fillable = [
         'mahasiswa_id',
-        // 'pendaftaran_kkn_id',
-        'order_id',
         'jenis_kkn_id',
         'jenis_kkn',
-        'amount',
-        'status',
-        'snap_token'
+        'status_pendaftaran',
     ];
 
     public function mahasiswa()
@@ -24,8 +20,8 @@ class Payment extends Model
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 
-    // public function pendaftaran()
+    // public function payments()
     // {
-    //     return $this->belongsTo(PendaftaranKkn::class, 'pendaftaran_kkn_id');
+    //     return $this->hasMany(Payment::class, 'pendaftaran_kkn_id');
     // }
 }

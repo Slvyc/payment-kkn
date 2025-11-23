@@ -44,6 +44,13 @@
                 </li>
             @endif
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('mahasiswa.biodata.index') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
+                    href="{{ route('mahasiswa.biodata.index') }}">
+                    <i class="material-symbols-rounded opacity-5">app_registration</i>
+                    <span class="nav-link-text ms-1">Pendaftaran</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('mahasiswa.pembayaran') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                     href="{{ route('mahasiswa.pembayaran') }}">
                     <i class="material-symbols-rounded opacity-5">payments</i>

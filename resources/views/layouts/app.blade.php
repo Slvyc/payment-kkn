@@ -42,7 +42,6 @@
 
     </main>
     {{-- main end --}}
-
     {{-- configuration --}}
     {{-- end configuration --}}
 
