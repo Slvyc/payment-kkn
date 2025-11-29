@@ -47,7 +47,7 @@
                   <div class="row g-3 px-3">
                     <h5 class="mb-2 fw-bold">Pembayaran KKN</h5>
 
-                    <div class="col-lg-8 col-md-6 mb-md-0 mb-4">
+                    <div class="col-lg-12 col-md-6 mb-md-0 mb-4">
                       <div class="card">
                         <div class="card-body px-0 pb-2">
                           <div class="table-responsive">
@@ -82,11 +82,11 @@
                                       </h6>
                                     </td>
                                     <td class="align-middle text-center text-sm">
-                                      {{-- @if ($jenis['is_active'])
-                                      <span class="badge badge-sm bg-gradient-success">Aktif</span>
+                                      @if ($jenis['is_active'])
+                                        <span class="badge badge-sm bg-gradient-success">Aktif</span>
                                       @else
-                                      <span class="badge badge-sm bg-gradient-secondary">Nonaktif</span>
-                                      @endif --}}
+                                        <span class="badge badge-sm bg-gradient-secondary">Nonaktif</span>
+                                      @endif
                                     </td>
                                   </tr>
                                 @empty
@@ -199,7 +199,6 @@
                           onPending: function () { window.location.reload(); },
                           onError: function () { window.location.reload(); },
                           onClose: function () {
-                            window.location.reload();
                             bayarBtn.disabled = false;
                             bayarBtn.innerHTML = '<i class="fas fa-credit-card me-1"></i>Bayar';
                           }

@@ -48,7 +48,6 @@ class PendaftaranController extends Controller
 
         // panggil Api endpoinst jenis kkn 
         $siakadApiUrl = 'https://mini-siakad.cloud/api/kkn/jenis';
-        // $secretKeySiakad = env('SYSTEM_API_KEY');
         $secretKeySiakad = env('SYSTEM_API_KEY');
         $jenisKknList = [];
 
@@ -145,6 +144,9 @@ class PendaftaranController extends Controller
                 'first_name' => $mahasiswaData['name'],
                 'email' => $mahasiswaData['email'] ?? $mahasiswaData['nim'] . '@example.com',
             ],
+            // 'callbacks' => [
+            //     'finish' => 'http://127.0.0.1:8000/payment/finish', // Ganti dengan route kamu
+            // ]
         ];
 
         $snapToken = Snap::getSnapToken($midtransParams);
@@ -158,7 +160,6 @@ class PendaftaranController extends Controller
             'snap_token' => $snapToken
         ]);
     }
-
 
     public function cancelTransaction($id)
     {
