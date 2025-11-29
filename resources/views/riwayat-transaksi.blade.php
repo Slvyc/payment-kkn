@@ -35,21 +35,9 @@
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                             Aksi</th>
-                                        <th class="text-secondary opacity-7"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if(session('success'))
-                                        <div class="alert alert-success">
-                                            {{ session('success') }}
-                                        </div>
-                                    @endif
-
-                                    @if($errors->any())
-                                        <div class="alert alert-danger">
-                                            {{ $errors->first() }}
-                                        </div>
-                                    @endif
                                     @if($payments->isEmpty())
                                         <tr>
                                             <td colspan="6" class="text-center py-4">
@@ -138,10 +126,14 @@
             </div>
         </div>
     </div>
+    @include('layouts.footer')
 
     <!-- Midtrans Snap -->
     <script src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key="{{ config('midtrans.client_key') }}"></script>
+
+    {{-- SweetAlert --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         function bayarLagi(snapToken) {
@@ -151,7 +143,6 @@
                     location.reload();
                 },
                 onPending: function (result) {
-                    alert('Menunggu pembayaran...');
                 },
                 onError: function (result) {
                     alert('Pembayaran gagal!');
@@ -161,5 +152,48 @@
                 }
             });
         }
+    </script>
+
+    {{-- error/success/warning handle sweet alert --}}
+    <script>
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'glass-popup rounded-3xl shadow-blur p-6',
+                    title: 'font-semibold',
+                    icon: 'icon-custom bg-transparent'
+                },
+                timer: 2000
+            });
+        @elseif (session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                text: "{{ session('warning') }}",
+                showConfirmButton: false,
+                customClass: {
+                    popup: 'glass-popup rounded-3xl shadow-blur p-6',
+                    title: 'font-semibold',
+                    icon: 'icon-custom bg-transparent'
+                },
+                timer: 2000
+            });
+        @endif
+
+        @if($errors->any())
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                customClass: {
+                    popup: 'glass-popup rounded-3xl shadow-blur p-6',
+                    title: 'font-bold',
+                    confirmButton: 'button-confirm px-6 py-2 rounded-xl text-white',
+                }
+            });
+        @endif
     </script>
 @endsection

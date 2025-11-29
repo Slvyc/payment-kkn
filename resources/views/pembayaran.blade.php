@@ -18,7 +18,8 @@
                       </p>
 
                       <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        <button onclick="snap.pay('{{ $pendingPayment->snap_token }}')" class="btn btn-success px-3">
+                        <button type="button" onclick="processPayment('{{ $pendingPayment->snap_token }}')"
+                          class="btn btn-success px-3">
                           <i class="fas fa-credit-card"></i> Bayar Sekarang
                         </button>
 
@@ -144,78 +145,102 @@
 
             {{-- Script Pembayaran --}}
             <script>
+              // 1. Fungsi Reusable untuk Memanggil Snap Midtrans
+              function processPayment(snapToken) {
+                if (!snapToken) {
+                  Swal.fire('Error', 'Token pembayaran tidak ditemukan', 'error');
+                  return;
+                }
+
+                snap.pay(snapToken, {
+                  onSuccess: function (result) {
+                    Swal.fire('Berhasil!', 'Pembayaran berhasil diterima.', 'success').then(() => {
+                      window.location.reload(); // Reload halaman agar status berubah
+                    });
+                  },
+                  onPending: function (result) {
+                    Swal.fire('Menunggu', 'Silakan selesaikan pembayaran Anda.', 'info').then(() => {
+                      window.location.reload();
+                    });
+                  },
+                  onError: function (result) {
+                    Swal.fire('Gagal', 'Pembayaran gagal atau kadaluarsa.', 'error').then(() => {
+                      window.location.reload();
+                    });
+                  },
+                  onClose: function () {
+                    // Jika ditutup tanpa bayar, kita enable lagi tombol bayar (jika ada)
+                    const bayarBtn = document.getElementById('bayar-button');
+                    if (bayarBtn) {
+                      bayarBtn.disabled = false;
+                      window.location.reload();
+                      bayarBtn.innerHTML = '<i class="fas fa-credit-card me-1"></i>Bayar';
+                    }
+                  }
+                });
+              }
+
+              // 2. Event Listener untuk Pendaftaran Baru
               document.addEventListener('DOMContentLoaded', function () {
                 const bayarBtn = document.getElementById('bayar-button');
                 const jenisSelect = document.getElementById('jenis-kkn');
 
-                bayarBtn.addEventListener('click', function () {
-                  const jenisKknId = jenisSelect.value;
+                // Cek apakah elemen ada (karena jika user sudah lunas, elemen ini hilang)
+                if (bayarBtn && jenisSelect) {
+                  bayarBtn.addEventListener('click', function () {
+                    const jenisKknId = jenisSelect.value;
 
-                  if (!jenisKknId) {
-                    Swal.fire({
-                      icon: 'warning',
-                      title: 'Jenis KKN Belum Dipilih',
-                      text: 'Silakan pilih jenis KKN terlebih dahulu.'
-                    });
-                    return;
-                  }
-
-                  Swal.fire({
-                    title: 'Konfirmasi Pembayaran',
-                    text: 'Lanjutkan ke proses pembayaran KKN?',
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Lanjut Bayar',
-                    cancelButtonText: 'Batal',
-                  }).then((result) => {
-                    if (!result.isConfirmed) return;
-
-                    bayarBtn.disabled = true;
-                    bayarBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
-
-                    fetch("{{ route('mahasiswa.pembayaran.daftar') }}", {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                      },
-                      body: JSON.stringify({ jenis_kkn_id: jenisKknId })
-                    })
-                      .then(async response => {
-                        const data = await response.json();
-
-                        // kalau gagal (HTTP 400/422/500)
-                        if (!response.ok) {
-                          throw new Error(data.message || "Terjadi kesalahan");
-                        }
-
-                        return data;
-                      })
-                      .then(data => {
-                        if (!data.snap_token) throw new Error('Gagal membuat transaksi');
-
-                        snap.pay(data.snap_token, {
-                          onSuccess: function () { window.location.reload(); },
-                          onPending: function () { window.location.reload(); },
-                          onError: function () { window.location.reload(); },
-                          onClose: function () {
-                            bayarBtn.disabled = false;
-                            bayarBtn.innerHTML = '<i class="fas fa-credit-card me-1"></i>Bayar';
-                          }
-                        });
-                      })
-                      .catch(err => {
-                        Swal.fire({
-                          icon: 'error',
-                          title: 'Gagal',
-                          text: err.message
-                        });
-
-                        bayarBtn.disabled = false;
-                        bayarBtn.innerHTML = '<i class="fas fa-credit-card me-1"></i>Bayar';
+                    if (!jenisKknId) {
+                      Swal.fire({
+                        icon: 'warning',
+                        title: 'Pilih Jenis KKN',
+                        text: 'Silakan pilih jenis KKN terlebih dahulu.'
                       });
+                      return;
+                    }
+
+                    Swal.fire({
+                      title: 'Konfirmasi',
+                      text: 'Lanjutkan ke proses pembayaran?',
+                      icon: 'question',
+                      showCancelButton: true,
+                      confirmButtonText: 'Ya, Bayar',
+                      cancelButtonText: 'Batal',
+                    }).then((result) => {
+                      if (!result.isConfirmed) return;
+
+                      // Loading state
+                      bayarBtn.disabled = true;
+                      bayarBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Memproses...';
+
+                      // Request Token Baru ke Backend
+                      fetch("{{ route('mahasiswa.pembayaran.daftar') }}", {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                          jenis_kkn_id: jenisKknId
+                        })
+                      })
+                        .then(async response => {
+                          const data = await response.json();
+                          if (!response.ok) throw new Error(data.message || "Terjadi kesalahan");
+                          return data;
+                        })
+                        .then(data => {
+                          // Panggil fungsi Snap yang sudah kita buat di atas
+                          processPayment(data.snap_token);
+                        })
+                        .catch(err => {
+                          Swal.fire({ icon: 'error', title: 'Gagal', text: err.message });
+                          bayarBtn.disabled = false;
+                          bayarBtn.innerHTML = '<i class="fas fa-credit-card me-1"></i>Bayar';
+                        });
+                    });
                   });
-                });
+                }
               });
             </script>
 
@@ -226,4 +251,5 @@
 
     {{-- Footer --}}
     @include('layouts.footer')
-</div> @endsection
+  </div>
+@endsection
