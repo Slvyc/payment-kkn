@@ -80,7 +80,8 @@
                                                         <select class="form-select border" id="tipe_kendaraan"
                                                             name="tipe_kendaraan"
                                                             style="border: 1px solid #d2d6da !important; padding: 0.5rem 0.75rem;">
-                                                            <option value="">- Kepemilikan Kendaraan -</option>
+                                                            <option value="">- Tipe Kendaraan -</option>
+                                                            <option value="Tidak Ada" {{ $mahasiswa->tipe_kendaraan == 'Tidak Ada' ? 'selected' : '' }}>Tidak Ada Kendaraan</option>
                                                             <option value="Mobil" {{ $mahasiswa->tipe_kendaraan == 'Mobil' ? 'selected' : '' }}>Mobil</option>
                                                             <option value="Sepeda Motor" {{ $mahasiswa->tipe_kendaraan == 'Sepeda Motor' ? 'selected' : '' }}>Sepeda Motor</option>
                                                         </select>
@@ -196,6 +197,7 @@
                                                             style="border: 1px solid #d2d6da !important; padding: 0.5rem 0.75rem;"
                                                             disabled>
                                                             <option value="">- Kepemilikan Kendaraan -</option>
+                                                            <option value="Tidak Ada" {{ $mahasiswa->tipe_kendaraan == 'Tidak Ada' ? 'selected' : '' }}>Mobil</option>
                                                             <option value="Mobil" {{ $mahasiswa->tipe_kendaraan == 'Mobil' ? 'selected' : '' }}>Mobil</option>
                                                             <option value="Sepeda Motor" {{ $mahasiswa->tipe_kendaraan == 'Sepeda Motor' ? 'selected' : '' }}>Sepeda Motor</option>
                                                         </select>

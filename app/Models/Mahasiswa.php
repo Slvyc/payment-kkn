@@ -32,6 +32,6 @@ class Mahasiswa extends Model
 
     public function pendaftaran()
     {
-        return $this->hasOne(PendaftaranKkn::class, 'mahasiswa_id');
+        return $this->hasMany(PendaftaranKkn::class, 'mahasiswa_id');
     }
 }

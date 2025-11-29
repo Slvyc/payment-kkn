@@ -7,10 +7,13 @@ use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use App\Models\PendaftaranKkn;
 use App\Models\Payment;
 use Midtrans\Snap;
 use Midtrans\Transaction;
 use Illuminate\Support\Facades\Log;
+
+use function PHPSTORM_META\map;
 
 class PendaftaranController extends Controller
 {
@@ -28,9 +31,6 @@ class PendaftaranController extends Controller
             !$mahasiswa->no_hp_darurat ||
             !$mahasiswa->jenis_kelamin ||
             !$mahasiswa->ukuran_jacket_rompi ||
-            !$mahasiswa->punya_kendaraan ||
-            !$mahasiswa->tipe_kendaraan ||
-            !$mahasiswa->punya_lisensi ||
             !$mahasiswa->keahlian
         ) {
             return redirect()->route('mahasiswa.biodata.index')
@@ -64,7 +64,6 @@ class PendaftaranController extends Controller
                 $jenisKknList = $response->json()['data'] ?? [];
             }
         } catch (\Exception $e) {
-            // ...
         }
 
         // 3. Kirim OBJEK mahasiswa ke view
@@ -77,55 +76,72 @@ class PendaftaranController extends Controller
 
     public function createTransaction(Request $request)
     {
-        // 1. Validasi input dari JS
         $request->validate(['jenis_kkn_id' => 'required|integer']);
         $jenisKknIdDipilih = $request->jenis_kkn_id;
 
-        // 2. Validasi ke API Siakad
+        $mahasiswaData = Session::get('mahasiswa_data');
+        $mahasiswaId = $mahasiswaData['id'];
+
+        // Cek apakah mahasiswa sudah pernah daftar KKN valid
+        $pendaftaran = PendaftaranKkn::where('mahasiswa_id', $mahasiswaId)->first();
+        if ($pendaftaran && $pendaftaran->status_pendaftaran === 'valid') {
+            return response()->json([
+                'message' => 'Anda sudah terdaftar KKN.',
+                'status' => 'failed'
+            ], 400);
+        }
+
+        // 1. Validasi Syarat ke SIAKAD
         $siakadToken = Session::get('siakad_token');
-        $siakadApiUrl = 'https://mini-siakad.cloud/api/kkn/syarat';
-
         $validasiResponse = Http::withToken($siakadToken)
-            ->post($siakadApiUrl, ['jenis_kkn_id' => $jenisKknIdDipilih]);
+            ->post('https://mini-siakad.cloud/api/kkn/syarat', [
+                'jenis_kkn_id' => $jenisKknIdDipilih
+            ]);
 
-        // 3. Handle jika GAGAL (SKS kurang, jadwal tutup, dll)
         if ($validasiResponse->failed()) {
             return response()->json($validasiResponse->json(), $validasiResponse->status());
         }
 
-        // 4. Handle jika SUKSES 
         $dataFromSiakad = $validasiResponse->json()['data'];
         $biayaKkn = $dataFromSiakad['biaya'];
 
-        // 5. Buat Tagihan Lokal (DB KKN Payment)
-        $mahasiswaData = Session::get('mahasiswa_data');
-        $orderId = 'KKN-' . $jenisKknIdDipilih . $mahasiswaData['id'] . '-' . time();
+        // 2. Buat ORDER ID
+        $orderId = 'KKN-' . $jenisKknIdDipilih . '-' . $mahasiswaId . '-' . time();
 
+        // 3. Buat Payment terlebih dahulu
         $payment = Payment::create([
             'order_id' => $orderId,
-            'mahasiswa_id' => $mahasiswaData['id'],
+            'mahasiswa_id' => $mahasiswaId,
             'jenis_kkn_id' => $jenisKknIdDipilih,
             'jenis_kkn' => $dataFromSiakad['jenis_kkn'],
             'amount' => $biayaKkn,
             'status' => 'pending',
         ]);
 
-        // 6. Siapkan data & Panggil Midtrans
+        // 4. Jika belum punya pendaftaran → buat
+        if (!$pendaftaran) {
+            $pendaftaran = PendaftaranKkn::create([
+                'mahasiswa_id' => $mahasiswaId,
+                'jenis_kkn_id' => $jenisKknIdDipilih,
+                'jenis_kkn' => $dataFromSiakad['jenis_kkn'],
+                'status_pendaftaran' => 'pending',
+                'payment_id' => $payment->id,
+            ]);
+        }
+
+        // 5. Siapkan Midtrans
         $midtransParams = [
             'transaction_details' => [
-                'order_id' => $payment->order_id, // Ambil dari payment yg baru dibuat
+                'order_id' => $payment->order_id,
                 'gross_amount' => $biayaKkn
             ],
             'item_details' => [[
-                // --- PERBAIKAN 1 ---
-                'id' => (string) $jenisKknIdDipilih, // Cast ke string
+                'id' => (string) $jenisKknIdDipilih,
                 'price' => $biayaKkn,
                 'quantity' => 1,
                 'name' => 'KKN ' . $dataFromSiakad['jenis_kkn']
             ]],
             'customer_details' => [
-                // --- PERBAIKAN 2 ---
-                // Pastikan 'nama' dan 'email' tidak null/kosong
                 'first_name' => $mahasiswaData['name'],
                 'email' => $mahasiswaData['email'] ?? $mahasiswaData['nim'] . '@example.com',
             ],
@@ -133,14 +149,16 @@ class PendaftaranController extends Controller
 
         $snapToken = Snap::getSnapToken($midtransParams);
 
-        // 7. Simpan snap token & kirim ke JS
-        $payment->snap_token = $snapToken;
-        $payment->save();
+        // 6. Update payment
+        $payment->update([
+            'snap_token' => $snapToken
+        ]);
 
         return response()->json([
             'snap_token' => $snapToken
         ]);
     }
+
 
     public function cancelTransaction($id)
     {
@@ -174,6 +192,12 @@ class PendaftaranController extends Controller
             return back()->withErrors('Transaksi ini tidak bisa dibatalkan karena statusnya: ' . $payment->status);
         }
 
+        // Hapus pendaftaran terkait
+        $pendaftaran = PendaftaranKkn::where('payment_id', $payment->id)->first();
+        if ($pendaftaran) {
+            $pendaftaran->delete();
+        }
+
         // 2. Batal Lokal Saja
         $payment->status = 'failed';
         $payment->save();
@@ -187,7 +211,6 @@ class PendaftaranController extends Controller
 
     public function riwayatTransaksi()
     {
-
         $mahasiswaId = Session::get('mahasiswa_data');
 
         // ambil payment sesuai mahasiswa id
@@ -195,8 +218,11 @@ class PendaftaranController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
+        $mahasiswa = Mahasiswa::where('id', $mahasiswaId)->first();
+
         return view('riwayat-transaksi', [
-            'payments' => $payments
+            'payments' => $payments,
+            'mahasiswa' => $mahasiswa
         ]);
     }
 }

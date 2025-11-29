@@ -105,11 +105,15 @@
                                                             Bayar Sekarang
                                                         </button>
                                                     @elseif($payment->status == 'failed')
-                                                        <span class="badge badge-sm bg-gradient-warning">-</span>
+                                                        <span>-</span>
                                                     @elseif($payment->status == 'success')
                                                         <a href="{{ route('mahasiswa.cetak', ['id' => $payment->id]) }}"
                                                             target="_blank">
-                                                            <span class="badge badge-sm bg-gradient-warning">Cetak</span>
+                                                            <span class="badge badge-sm bg-gradient-warning">Cetak Invoice</span>
+                                                        </a>
+                                                        <a href="{{ route('mahasiswa.cetak.pendaftaran', ['id' => $payment->id]) }}"
+                                                            target="_blank">
+                                                            <span class="badge badge-sm bg-gradient-success">Cetak Formulir</span>
                                                         </a>
                                                     @else
                                                         <a href="">

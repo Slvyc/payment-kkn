@@ -24,8 +24,8 @@ class Payment extends Model
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 
-    // public function pendaftaran()
-    // {
-    //     return $this->belongsTo(PendaftaranKkn::class, 'pendaftaran_kkn_id');
-    // }
+    public function pendaftaran()
+    {
+        return $this->hasOne(PendaftaranKkn::class, 'payment_id');
+    }
 }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Auth\LoginAdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CetakInvoice;
+use App\Http\Controllers\CetakPendaftaran;
 use App\Http\Controllers\Mahasiswa\PendaftaranController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MidtransWebhookController;
@@ -46,6 +47,9 @@ Route::middleware(['auth.mahasiswa'])->prefix('mahasiswa')->group(function () {
     // Cetak Invoice
     Route::get('/riwayat/cetak/{id}', [CetakInvoice::class, 'cetakTransaksi']) // Sesuaikan Controller
         ->name('mahasiswa.cetak');
+    // Cetak Form Pendaftaran
+    Route::get('/riwayat/cetak/pendaftaran/{id}', [CetakPendaftaran::class, 'cetakPendaftaran']) // Sesuaikan Controller
+        ->name('mahasiswa.cetak.pendaftaran');
 });
 
 // Admin

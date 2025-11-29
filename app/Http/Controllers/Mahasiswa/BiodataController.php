@@ -43,7 +43,7 @@ class BiodataController extends Controller
             'jenis_kelamin' => 'nullable|in:L,P',
             'ukuran_jacket_rompi' => 'nullable|in:S,M,L,XL,XXL,3XL',
             'punya_kendaraan' => 'nullable|in:Punya,Tidak',
-            'tipe_kendaraan' => 'nullable|in:Mobil,Sepeda Motor',
+            'tipe_kendaraan' => 'nullable|in:Tidak Ada,Mobil,Sepeda Motor',
             'punya_lisensi' => 'nullable|in:Tidak Ada,SIM A,SIM B,SIM C,Lainnya',
             'keahlian' => 'nullable|string|max:255',
         ]);

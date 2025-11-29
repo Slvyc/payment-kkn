@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pendaftaran_kkn', function (Blueprint $table) {
             $table->id();
             $table->foreignId('mahasiswa_id')->unique()->constrained('mahasiswa')->onDelete('cascade');
+            $table->foreignId('payment_id')->nullable()->constrained('payment')->nullOnDelete();
             $table->integer('jenis_kkn_id');
             $table->string('jenis_kkn');
             $table->enum('status_pendaftaran', ['pending', 'valid', 'ditolak'])->default('pending');

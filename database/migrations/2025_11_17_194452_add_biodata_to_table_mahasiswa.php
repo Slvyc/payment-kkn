@@ -19,7 +19,7 @@ return new class extends Migration
 
             // Data Kendaraan & Keahlian
             $table->enum('punya_kendaraan', ['Punya', 'Tidak'])->nullable()->after('ukuran_jacket_rompi');
-            $table->enum('tipe_kendaraan', ['Mobil', 'Sepeda Motor'])->nullable()->after('punya_kendaraan');
+            $table->enum('tipe_kendaraan', ['Tidak Ada', 'Mobil', 'Sepeda Motor'])->nullable()->after('punya_kendaraan');
             $table->enum('punya_lisensi', ['Tidak Ada', 'SIM A', 'SIM B', 'SIM C', 'Lainnya'])->nullable()->after('tipe_kendaraan');
             $table->string('keahlian')->nullable()->after('punya_lisensi');
         });

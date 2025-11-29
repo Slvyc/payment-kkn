@@ -61,7 +61,7 @@
                 <a class="nav-link {{ request()->routeIs('mahasiswa.riwayat') ? 'active bg-gradient-dark text-white' : 'text-dark' }}"
                     href="{{ route('mahasiswa.riwayat') }}">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
-                    <span class="nav-link-text ms-1">Riwayat Transaksi</span>
+                    <span class="nav-link-text ms-1">Riwayat Pendaftaran</span>
                 </a>
             </li>
             {{-- <li class="nav-item">

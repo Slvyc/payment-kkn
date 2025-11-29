@@ -10,6 +10,7 @@ class PendaftaranKkn extends Model
 
     protected $fillable = [
         'mahasiswa_id',
+        'payment_id',
         'jenis_kkn_id',
         'jenis_kkn',
         'status_pendaftaran',
@@ -20,8 +21,8 @@ class PendaftaranKkn extends Model
         return $this->belongsTo(Mahasiswa::class, 'mahasiswa_id');
     }
 
-    // public function payments()
-    // {
-    //     return $this->hasMany(Payment::class, 'pendaftaran_kkn_id');
-    // }
+    public function payment()
+    {
+        return $this->belongsTo(Payment::class, 'payment_id');
+    }
 }

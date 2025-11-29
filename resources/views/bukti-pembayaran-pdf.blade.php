@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>Bukti Pembayaran - {{ $payment->order_id }}</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/Unaya.png') }}">
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -157,9 +158,10 @@
                 </td>
                 <td style="width: 80%; vertical-align: top;" class="company-details">
                     <h2>Panitia KKN</h2>
-                    <p>Universitas [Nama Universitas Anda]</p>
-                    <p>Jalan [Alamat Kampus Anda]</p>
-                    <p>Email: kkn@univ.ac.id | Web: univ.ac.id</p>
+                    <p>Universitas Abulyatama</p>
+                    <p>Jalan Jl. Blangbintang Lama No.KM 8, RW.5, Lampoh Keude, Kec. Kuta Baro, Kabupaten Aceh Besar,
+                        Aceh 24415</p>
+                    <p>Email: kkn@unaya.ac.id | Web: unaya.ac.id</p>
                 </td>
             </tr>
         </table>
@@ -228,7 +230,7 @@
         <div class="footer">
             Ini adalah bukti pembayaran yang sah dan diterbitkan oleh sistem secara otomatis.
             <br>
-            &copy; {{ date('Y') }} Panitia KKN Universitas [Nama Universitas Anda].
+            &copy; {{ date('Y') }} Panitia KKN Universitas Abulyatama.
         </div>
     </div>
 </body>
